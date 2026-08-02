@@ -1,0 +1,10 @@
+chrome-profile/
+cookies.txt
+output/
+__pycache__/
+logs/
+profile/
+tmp/
+tessdata/
+.pytest_cache/
+.vscode/
