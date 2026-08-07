@@ -1,0 +1,592 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="theme-color" content="#173d2a">
+  <title>汽车模型周报影像志</title>
+  <style>
+    :root {
+      --ink: #173d2a;
+      --muted: #6d756f;
+      --paper: #f7f4ec;
+      --card: #fffdf8;
+      --line: #dedbd0;
+      --accent: #e36f45;
+      --accent-soft: #f4d8c8;
+      --green-soft: #dce8d8;
+      --shadow: 0 18px 50px rgba(26, 44, 33, .12);
+    }
+    * { box-sizing: border-box; }
+    html { scroll-behavior: smooth; }
+    body {
+      margin: 0;
+      color: var(--ink);
+      background:
+        radial-gradient(circle at 12% 8%, rgba(227,111,69,.12), transparent 28rem),
+        radial-gradient(circle at 90% 22%, rgba(23,61,42,.08), transparent 30rem),
+        var(--paper);
+      font-family: Inter, "PingFang SC", "Microsoft YaHei", system-ui, sans-serif;
+    }
+    button, select { font: inherit; }
+    button { color: inherit; }
+    .shell { max-width: 1480px; margin: auto; padding: 24px 28px 70px; }
+    header {
+      min-height: 270px;
+      display: flex;
+      align-items: flex-end;
+      justify-content: space-between;
+      gap: 40px;
+      padding: 48px 0 34px;
+      border-bottom: 1px solid var(--line);
+    }
+    .eyebrow { margin: 0 0 10px; letter-spacing: .24em; font-size: 12px; font-weight: 800; color: var(--accent); }
+    h1 { margin: 0; max-width: 800px; font-family: Georgia, "Songti SC", serif; font-size: clamp(46px, 7vw, 98px); font-weight: 500; line-height: .95; letter-spacing: -.045em; }
+    .lede { max-width: 390px; margin: 0 0 6px; color: var(--muted); line-height: 1.8; font-size: 15px; }
+    .toolbar {
+      position: sticky; top: 0; z-index: 20;
+      display: flex; align-items: center; justify-content: space-between; gap: 18px;
+      padding: 16px 0; background: rgba(247,244,236,.9); backdrop-filter: blur(14px);
+    }
+    .tabs { display: flex; gap: 4px; padding: 4px; border: 1px solid var(--line); border-radius: 999px; background: rgba(255,255,255,.58); }
+    .tab { border: 0; background: transparent; padding: 10px 17px; border-radius: 999px; cursor: pointer; font-size: 14px; font-weight: 700; }
+    .tab.active { background: var(--ink); color: white; }
+    .tools { display: flex; align-items: center; gap: 12px; }
+    .search-box { position: relative; display: flex; align-items: center; }
+    .search-box input { width: min(28vw, 320px); border: 1px solid var(--line); background: var(--card); color: var(--ink); border-radius: 12px; padding: 10px 34px 10px 13px; outline: none; }
+    .search-box input:focus { border-color: var(--ink); box-shadow: 0 0 0 3px rgba(23,61,42,.09); }
+    .clear-search { position: absolute; right: 7px; width: 26px; height: 26px; border: 0; border-radius: 50%; background: transparent; color: var(--muted); cursor: pointer; font-size: 18px; }
+    .clear-search[hidden] { display: none; }
+    .zoom-control { display: flex; align-items: center; gap: 8px; padding: 7px 12px; border: 1px solid var(--line); border-radius: 999px; background: var(--card); font-size: 13px; }
+    .zoom-control[hidden] { display: none; }
+    .zoom-control input { width: 150px; accent-color: var(--ink); cursor: pointer; }
+    .zoom-value { min-width: 38px; color: var(--muted); text-align: right; }
+    select { border: 1px solid var(--line); background: var(--card); color: var(--ink); border-radius: 12px; padding: 10px 34px 10px 12px; }
+    .counter { color: var(--muted); font-size: 13px; white-space: nowrap; }
+    .year-block { margin-top: 28px; }
+    .year-title { display: flex; align-items: baseline; gap: 16px; margin: 0 0 16px; }
+    .year-title h2 { margin: 0; font: 500 34px Georgia, "Songti SC", serif; }
+    .year-title span { color: var(--muted); font-size: 13px; }
+    .week-grid { display: grid; grid-template-columns: repeat(5, minmax(0, 1fr)); gap: 18px; }
+    .week-card {
+      position: relative; aspect-ratio: 3 / 4; overflow: hidden; border: 0; padding: 0;
+      border-radius: 22px; background: #d8dfd4; cursor: pointer; text-align: left; box-shadow: 0 0 0 1px rgba(23,61,42,.08);
+      transition: transform .22s ease, box-shadow .22s ease;
+    }
+    .week-card:hover { transform: translateY(-5px); box-shadow: var(--shadow); }
+    .week-card img { width: 100%; height: 100%; position: absolute; inset: 0; object-fit: cover; transition: transform .5s ease; }
+    .week-card:hover img { transform: scale(1.035); }
+    .week-card::after { content: ""; position: absolute; inset: 0; background: linear-gradient(180deg, transparent 40%, rgba(7,26,17,.82)); }
+    .week-meta { position: absolute; z-index: 1; left: 20px; right: 20px; bottom: 18px; display: flex; align-items: end; justify-content: space-between; color: white; }
+    .week-title { display: grid; gap: 3px; }
+    .week-no { font: 500 29px Georgia, serif; }
+    .week-date { font-size: 11px; opacity: .82; }
+    .week-count { font-size: 12px; opacity: .85; }
+    .continuous { width: var(--reader-width, 1040px); max-width: 100%; margin: 22px auto 0; }
+    .continuous-week { margin: 0 0 70px; }
+    .continuous-head { position: sticky; top: 78px; z-index: 5; display: flex; justify-content: space-between; padding: 12px 2px; background: rgba(247,244,236,.9); backdrop-filter: blur(12px); border-bottom: 1px solid var(--line); }
+    .continuous-head strong { font: 500 26px Georgia, serif; }
+    .continuous-head span { color: var(--muted); font-size: 13px; align-self: center; }
+    .page-stack { display: grid; gap: 14px; padding-top: 14px; }
+    .page-stack button { display: block; border: 0; padding: 0; background: none; cursor: zoom-in; }
+    .page-stack img { display: block; width: 100%; height: auto; min-height: 160px; border-radius: 8px; background: #e9e6dc; box-shadow: 0 1px 0 rgba(0,0,0,.08); }
+    .spreads { max-width: none; margin: 22px auto 0; }
+    .spread-week { margin-bottom: 76px; }
+    .spread-cover, .spread-row { min-height: calc(var(--spread-page-height, calc(100vh - 184px)) + 34px); display: flex; align-items: center; justify-content: center; gap: 4px; padding: 16px 0; }
+    .spread-cover { border-bottom: 1px solid var(--line); }
+    .spread-cover button, .spread-row button { min-width: 0; height: var(--spread-page-height, calc(100vh - 184px)); border: 0; padding: 0; background: transparent; cursor: zoom-in; }
+    .spread-cover button { max-width: min(50vw, 720px); }
+    .spread-row button { flex: 0 1 auto; width: auto; max-width: calc(50% - 2px); }
+    .spread-cover img, .spread-row img { display: block; width: 100%; height: 100%; object-fit: contain; border-radius: 6px; filter: drop-shadow(0 12px 22px rgba(24,37,29,.13)); }
+    .empty, .loading { padding: 80px 0; color: var(--muted); text-align: center; }
+    .search-results { margin-top: 24px; }
+    .result-grid { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 14px; }
+    .result-card { aspect-ratio: 3 / 4; overflow: hidden; border: 1px solid var(--line); border-radius: 16px; padding: 0; background: var(--card); cursor: pointer; transition: transform .18s ease, box-shadow .18s ease; }
+    .result-card:hover { transform: translateY(-2px); box-shadow: var(--shadow); }
+    .result-card img { display: block; width: 100%; height: 100%; object-fit: cover; background: #e9e6dc; }
+    dialog { position: fixed; inset: 0; width: 100vw; max-width: none; height: 100dvh; max-height: none; margin: 0; border: 0; padding: 0; overflow: hidden; background: rgba(7,16,11,.94); color: white; }
+    dialog::backdrop { background: rgba(7,16,11,.94); }
+    .viewer { position: relative; width: 100%; height: 100%; overflow: hidden; }
+    .viewer-top { position: absolute; z-index: 5; inset: 0 0 auto; display: flex; align-items: center; justify-content: space-between; gap: 20px; padding: 18px 24px; background: linear-gradient(rgba(7,16,11,.9), transparent); }
+    .viewer-label { font-weight: 700; }
+    .viewer-index { color: rgba(255,255,255,.6); font-size: 13px; margin-left: 10px; }
+    .viewer-actions { display: flex; align-items: center; gap: 10px; }
+    .week-jump { height: 40px; border: 1px solid rgba(255,255,255,.28); border-radius: 999px; padding: 0 17px; background: rgba(255,255,255,.1); color: white; cursor: pointer; font-weight: 700; }
+    .icon-btn { width: 44px; height: 44px; border-radius: 50%; border: 1px solid rgba(255,255,255,.22); background: rgba(255,255,255,.08); color: white; cursor: pointer; font-size: 24px; }
+    .viewer-stage { position: absolute; inset: 0; overflow: hidden; touch-action: none; }
+    .nav-btn { position: absolute; z-index: 4; top: 50%; translate: 0 -50%; width: 52px; height: 52px; border: 0; border-radius: 50%; background: rgba(255,255,255,.1); color: white; cursor: pointer; font-size: 29px; }
+    #prevImage { left: 18px; }
+    #nextImage { right: 18px; }
+    .nav-btn:hover, .icon-btn:hover { background: rgba(255,255,255,.18); }
+    .stage-img { position: absolute; left: 50%; top: 50%; width: auto; height: calc(100% - 150px); max-width: none; max-height: none; transform: translate(calc(-50% + var(--pan-x, 0px)), calc(-50% + var(--pan-y, 0px))) scale(var(--zoom, 1)); transform-origin: center; cursor: grab; user-select: none; -webkit-user-drag: none; will-change: transform; }
+    .stage-img.dragging { cursor: grabbing; }
+    .thumbs { position: absolute; z-index: 5; inset: auto 0 0; display: flex; gap: 8px; overflow-x: auto; overflow-y: hidden; padding: 12px 24px 18px; background: linear-gradient(transparent, rgba(7,16,11,.92) 38%); scrollbar-width: thin; }
+    .thumb { flex: 0 0 66px; height: 48px; border: 2px solid transparent; border-radius: 7px; padding: 0; overflow: hidden; background: #222; cursor: pointer; opacity: .48; }
+    .thumb.active { border-color: var(--accent); opacity: 1; }
+    .thumb img { width: 100%; height: 100%; object-fit: cover; }
+    .back-to-search { position: fixed; z-index: 20; right: 24px; bottom: 24px; height: 46px; border: 0; border-radius: 999px; padding: 0 20px; background: var(--accent); color: white; box-shadow: 0 10px 30px rgba(19,70,48,.28); cursor: pointer; font-weight: 700; }
+    .week-card.week-target { outline: 4px solid var(--accent); outline-offset: 4px; }
+    .sr-only { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0,0,0,0); }
+    @media (max-width: 1050px) { .week-grid { grid-template-columns: repeat(3, 1fr); } }
+    @media (max-width: 760px) {
+      .shell { padding: 14px 15px 50px; }
+      header { min-height: 230px; display: block; padding: 42px 0 28px; }
+      h1 { font-size: clamp(48px, 17vw, 76px); }
+      .lede { margin-top: 24px; }
+      .toolbar { align-items: flex-start; flex-direction: column; }
+      .tools { width: 100%; justify-content: space-between; }
+      .search-box { flex: 1; }
+      .search-box input { width: 100%; }
+      .result-grid { grid-template-columns: repeat(2, 1fr); gap: 10px; }
+      .zoom-control { width: 100%; }
+      .zoom-control input { flex: 1; width: auto; }
+      .week-grid { grid-template-columns: repeat(2, 1fr); gap: 10px; }
+      .week-card { border-radius: 16px; }
+      .spread-cover, .spread-row { min-height: auto; align-items: flex-start; gap: 3px; padding: 9px 0; }
+      .spread-cover button, .spread-row button { height: var(--spread-page-height, 72vh); }
+      .week-meta { left: 14px; right: 14px; bottom: 13px; }
+      .nav-btn { width: 42px; height: 42px; }
+      #prevImage { left: 6px; }
+      #nextImage { right: 6px; }
+      .stage-img { width: auto; height: calc(100% - 140px); }
+    }
+    @media (max-width: 460px) { .week-grid { grid-template-columns: 2fr 2fr; } .week-no { font-size: 24px; } }
+    @media (prefers-reduced-motion: reduce) { * { scroll-behavior: auto !important; transition: none !important; } }
+  </style>
+</head>
+<body>
+  <main class="shell">
+    <header>
+      <div>
+        <p class="eyebrow">WEEKLY FIELD NOTES</p>
+        <h1>汽车模型周报<br>影像志</h1>
+      </div>
+      <p class="lede">把每一周的发现，留在一册可以慢慢翻阅的影像档案里。点击封面进入大图，也可以切换到连续阅读。</p>
+    </header>
+
+    <nav class="toolbar" aria-label="浏览方式">
+      <div class="tabs">
+        <button class="tab active" data-mode="weeks">按周浏览</button>
+        <button class="tab" data-mode="continuous">滚动阅读</button>
+        <button class="tab" data-mode="spreads">适高双页</button>
+      </div>
+      <label class="zoom-control" id="scrollZoomControl" hidden>
+        <span aria-hidden="true">−</span>
+        <span class="sr-only">阅读缩放比例</span>
+        <input id="scrollZoom" type="range" min="40" max="160" value="100" step="5">
+        <span aria-hidden="true">＋</span>
+        <span class="zoom-value" id="scrollZoomValue">100%</span>
+      </label>
+      <div class="tools">
+        <label class="search-box">
+          <span class="sr-only">搜索 OCR 文字</span>
+          <input id="searchInput" type="search" placeholder="搜索品牌、车型、车手、货号…" autocomplete="off">
+          <button class="clear-search" id="clearSearch" type="button" aria-label="清除搜索" hidden>×</button>
+        </label>
+        <label><span class="sr-only">筛选年份</span><select id="yearFilter"><option value="all">全部年份</option></select></label>
+        <span class="counter" id="counter">读取中…</span>
+      </div>
+    </nav>
+
+    <section id="content" aria-live="polite"><div class="loading">正在整理周报…</div></section>
+  </main>
+
+  <dialog id="lightbox" aria-label="大图查看器">
+    <div class="viewer">
+      <div class="viewer-top">
+        <div><span class="viewer-label" id="viewerWeek"></span><span class="viewer-index" id="viewerIndex"></span></div>
+        <div class="viewer-actions">
+          <button class="week-jump" id="goToWeek" hidden>查看所在周</button>
+          <button class="icon-btn" id="closeViewer" aria-label="关闭">×</button>
+        </div>
+      </div>
+      <div class="viewer-stage" id="viewerStage">
+        <button class="nav-btn" id="prevImage" aria-label="上一张">‹</button>
+        <img class="stage-img" id="stageImage" alt="周报大图">
+        <button class="nav-btn" id="nextImage" aria-label="下一张">›</button>
+      </div>
+      <div class="thumbs" id="thumbs" aria-label="图片缩略图"></div>
+    </div>
+  </dialog>
+  <button class="back-to-search" id="backToSearch" hidden>← 返回搜索结果</button>
+
+  <script>
+    const state = { weeks: [], mode: 'weeks', year: 'all', viewerItems: [], viewerSource: 'week', index: 0, scrollZoom: 100, query: '', searchData: null, searchIndex: { records: [], indexed_weeks: 0 }, searchReturn: null };
+    const view = { zoom: 1, x: 0, y: 0, dragging: false, startX: 0, startY: 0 };
+    const content = document.querySelector('#content');
+    const yearFilter = document.querySelector('#yearFilter');
+    const counter = document.querySelector('#counter');
+    const lightbox = document.querySelector('#lightbox');
+    const stageImage = document.querySelector('#stageImage');
+    const viewerWeek = document.querySelector('#viewerWeek');
+    const viewerIndex = document.querySelector('#viewerIndex');
+    const thumbs = document.querySelector('#thumbs');
+    const viewerStage = document.querySelector('#viewerStage');
+    const scrollZoomControl = document.querySelector('#scrollZoomControl');
+    const scrollZoom = document.querySelector('#scrollZoom');
+    const scrollZoomValue = document.querySelector('#scrollZoomValue');
+    const searchInput = document.querySelector('#searchInput');
+    const clearSearch = document.querySelector('#clearSearch');
+    const goToWeek = document.querySelector('#goToWeek');
+    const backToSearch = document.querySelector('#backToSearch');
+
+    function weekDateRange(id) {
+      const [year, week] = id.split('-W').map(Number);
+      const jan4 = new Date(Date.UTC(year, 0, 4));
+      const monday = new Date(jan4);
+      monday.setUTCDate(jan4.getUTCDate() - (jan4.getUTCDay() + 6) % 7 + (week - 1) * 7);
+      const sunday = new Date(monday);
+      sunday.setUTCDate(monday.getUTCDate() + 6);
+      const date = day => `${day.getUTCMonth() + 1}月${day.getUTCDate()}日`;
+      return monday.getUTCFullYear() === sunday.getUTCFullYear()
+        ? `${date(monday)}—${date(sunday)}`
+        : `${monday.getUTCFullYear()}年${date(monday)}—${sunday.getUTCFullYear()}年${date(sunday)}`;
+    }
+    const weekLabel = id => `${id.slice(0, 4)} · 第 ${Number(id.slice(6))} 周 · ${weekDateRange(id)}`;
+    const visibleWeeks = () => state.weeks.filter(w => state.year === 'all' || w.id.startsWith(state.year));
+    const imageCount = weeks => weeks.reduce((sum, week) => sum + week.images.length, 0);
+    const pagePairs = images => Array.from({ length: Math.ceil((images.length - 1) / 2) }, (_, i) => images.slice(i * 2 + 1, i * 2 + 3));
+    const clamp = (value, limit) => Math.max(-limit, Math.min(limit, value));
+    console.assert(pagePairs([0, 1, 2, 3]).map(pair => pair.join('')).join('|') === '12|3');
+    console.assert(clamp(800, 500) === 500 && clamp(-800, 500) === -500);
+
+    function render() {
+      if (state.query) { renderSearch(); return; }
+      const weeks = visibleWeeks();
+      counter.textContent = `${weeks.length} 期 · ${imageCount(weeks)} 张`;
+      if (!weeks.length) { content.innerHTML = '<div class="empty">这个年份还没有周报。</div>'; return; }
+      content.className = state.mode === 'continuous' ? 'continuous' : state.mode === 'spreads' ? 'spreads' : '';
+      applyReaderZoom();
+      scrollZoomControl.hidden = state.mode === 'weeks';
+      content.innerHTML = state.mode === 'weeks' ? renderWeeks(weeks) : state.mode === 'continuous' ? renderContinuous(weeks) : renderSpreads(weeks);
+    }
+
+    function renderSearch() {
+      scrollZoomControl.hidden = true;
+      content.className = 'search-results';
+      if (!state.searchData) {
+        content.innerHTML = '<div class="loading">正在搜索 OCR 文字…</div>';
+        return;
+      }
+      const { results, indexed_weeks: indexedWeeks, limited } = state.searchData;
+      counter.textContent = `${results.length}${limited ? '+' : ''} 个结果 · 已索引 ${indexedWeeks} 期`;
+      content.innerHTML = results.length ? `
+        <div class="result-grid">${results.map(result => `
+          <button class="result-card" onclick="openSearchResult('${result.week}', '${encodeURIComponent(result.image)}')" oncontextmenu="event.preventDefault(); jumpToWeek('${result.week}')" aria-label="打开${weekLabel(result.week)}第${result.page}页">
+            <img src="${result.url}" alt="" loading="lazy">
+          </button>`).join('')}</div>`
+        : `<div class="empty">已完成 OCR 的内容中没有找到“${escapeHtml(state.query)}”。</div>`;
+    }
+
+    const escapeHtml = value => String(value).replace(/[&<>"']/g, char => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' })[char]);
+
+    function renderWeeks(weeks) {
+      const groups = Object.groupBy ? Object.groupBy(weeks, w => w.id.slice(0, 4)) : weeks.reduce((a,w) => ((a[w.id.slice(0,4)] ||= []).push(w), a), {});
+      return Object.entries(groups).sort(([a], [b]) => b.localeCompare(a)).map(([year, items]) => `
+        <section class="year-block">
+          <div class="year-title"><h2>${year}</h2><span>${items.length} 期</span></div>
+          <div class="week-grid">${items.map(week => `
+            <button class="week-card" data-week="${week.id}" onclick="openWeek('${week.id}')" aria-label="查看${weekLabel(week.id)}，${week.images.length}张图片">
+              <img src="${week.images[0].url}" alt="" loading="lazy">
+              <span class="week-meta"><span class="week-title"><span class="week-no">W${week.id.slice(6)}</span><span class="week-date">${weekDateRange(week.id)}</span></span><span class="week-count">${week.images.length} 张 →</span></span>
+            </button>`).join('')}</div>
+        </section>`).join('');
+    }
+
+    function renderContinuous(weeks) {
+      return weeks.map(week => `
+        <article class="continuous-week">
+          <div class="continuous-head"><strong>${weekLabel(week.id)}</strong><span>${week.images.length} 张</span></div>
+          <div class="page-stack">${week.images.map((image, i) => `
+            <button data-reader-page onclick="openAll('${week.id}', ${i})" aria-label="放大第${i + 1}张">
+              <img src="${image.url}" alt="${weekLabel(week.id)}第${i + 1}张" loading="lazy">
+            </button>`).join('')}</div>
+        </article>`).join('');
+    }
+
+    function renderSpreads(weeks) {
+      return weeks.map(week => {
+        const pairs = pagePairs(week.images);
+        return `<article class="spread-week">
+          <div class="continuous-head"><strong>${weekLabel(week.id)}</strong><span>首页单独展示 · ${week.images.length} 张</span></div>
+          <div class="spread-cover">
+            <button data-reader-page onclick="openAll('${week.id}', 0)" aria-label="放大首页"><img src="${week.images[0].url}" alt="${weekLabel(week.id)}首页" loading="lazy"></button>
+          </div>
+          ${pairs.map((pair, pairIndex) => `<div class="spread-row">${pair.map((image, side) => {
+            const index = pairIndex * 2 + side + 1;
+            return `<button data-reader-page onclick="openAll('${week.id}', ${index})" aria-label="放大第${index + 1}张"><img src="${image.url}" alt="${weekLabel(week.id)}第${index + 1}张" loading="lazy" onload="this.parentElement.style.aspectRatio=this.naturalWidth+'/'+this.naturalHeight"></button>`;
+          }).join('')}</div>`).join('')}
+        </article>`;
+      }).join('');
+    }
+
+    function openWeek(id) {
+      const week = state.weeks.find(w => w.id === id);
+      state.viewerSource = 'week';
+      state.viewerItems = week.images.map(image => ({ ...image, week: id }));
+      showViewer(0);
+    }
+
+    function openAll(weekId, imageIndex) {
+      state.viewerSource = 'week';
+      state.viewerItems = visibleWeeks().flatMap(week => week.images.map(image => ({ ...image, week: week.id })));
+      const targetUrl = state.weeks.find(w => w.id === weekId).images[imageIndex].url;
+      showViewer(state.viewerItems.findIndex(item => item.url === targetUrl));
+    }
+
+    function openSearchResult(weekId, encodedImageName) {
+      const imageName = decodeURIComponent(encodedImageName);
+      state.viewerSource = 'search';
+      state.viewerItems = state.searchData.results.map(result => ({ name: result.image, url: result.url, week: result.week }));
+      showViewer(Math.max(0, state.viewerItems.findIndex(image => image.week === weekId && image.name === imageName)));
+    }
+
+    function showViewer(index) {
+      state.index = (index + state.viewerItems.length) % state.viewerItems.length;
+      if (!lightbox.open) {
+        lightbox.showModal();
+        document.documentElement.style.overflow = 'hidden';
+      }
+      updateViewer(true);
+    }
+
+    function resetView() {
+      Object.assign(view, { zoom: 1, x: 0, y: 0, dragging: false });
+      applyView();
+    }
+
+    function applyView() {
+      stageImage.style.setProperty('--zoom', view.zoom);
+      stageImage.style.setProperty('--pan-x', `${view.x}px`);
+      stageImage.style.setProperty('--pan-y', `${view.y}px`);
+      stageImage.classList.toggle('dragging', view.dragging);
+    }
+
+    function constrainPan() {
+      view.x = clamp(view.x, stageImage.offsetWidth * view.zoom / 2);
+      view.y = clamp(view.y, stageImage.offsetHeight * view.zoom / 2);
+    }
+
+    function updateViewer(rebuildThumbs = false) {
+      const item = state.viewerItems[state.index];
+      resetView();
+      stageImage.src = item.url;
+      viewerWeek.textContent = weekLabel(item.week);
+      viewerIndex.textContent = `${state.index + 1} / ${state.viewerItems.length}`;
+      goToWeek.hidden = state.viewerSource !== 'search';
+      if (rebuildThumbs) {
+        thumbs.innerHTML = state.viewerItems.map((image, i) => `<button class="thumb${i === state.index ? ' active' : ''}" data-index="${i}" aria-label="查看第${i + 1}张"><img src="${image.url}" alt="" loading="lazy"></button>`).join('');
+      } else {
+        thumbs.querySelector('.active')?.classList.remove('active');
+        thumbs.children[state.index]?.classList.add('active');
+      }
+      thumbs.children[state.index]?.scrollIntoView({ behavior: 'smooth', block: 'nearest', inline: 'center' });
+    }
+
+    const move = delta => { state.index = (state.index + delta + state.viewerItems.length) % state.viewerItems.length; updateViewer(); };
+    document.querySelector('#prevImage').onclick = () => move(-1);
+    document.querySelector('#nextImage').onclick = () => move(1);
+    document.querySelector('#closeViewer').onclick = () => lightbox.close();
+    thumbs.onclick = event => { const button = event.target.closest('.thumb'); if (button) showViewer(Number(button.dataset.index)); };
+    thumbs.oncontextmenu = event => {
+      const button = event.target.closest('.thumb');
+      if (!button) return;
+      event.preventDefault();
+      jumpToWeek(state.viewerItems[Number(button.dataset.index)].week);
+    };
+    goToWeek.onclick = () => jumpToWeek(state.viewerItems[state.index].week);
+    lightbox.addEventListener('click', event => { if (event.target === lightbox) lightbox.close(); });
+    document.addEventListener('keydown', event => {
+      if (!lightbox.open) return;
+      if (event.key === 'ArrowLeft') move(-1);
+      if (event.key === 'ArrowRight') move(1);
+    });
+
+    lightbox.addEventListener('close', () => document.documentElement.style.overflow = '');
+    stageImage.addEventListener('pointerdown', event => {
+      view.dragging = true;
+      view.startX = event.clientX - view.x;
+      view.startY = event.clientY - view.y;
+      stageImage.setPointerCapture(event.pointerId);
+      applyView();
+    });
+    stageImage.addEventListener('pointermove', event => {
+      if (!view.dragging) return;
+      view.x = event.clientX - view.startX;
+      view.y = event.clientY - view.startY;
+      constrainPan();
+      applyView();
+    });
+    const stopDrag = event => {
+      if (!view.dragging) return;
+      view.dragging = false;
+      if (stageImage.hasPointerCapture(event.pointerId)) stageImage.releasePointerCapture(event.pointerId);
+      applyView();
+    };
+    stageImage.addEventListener('pointerup', stopDrag);
+    stageImage.addEventListener('pointercancel', stopDrag);
+    viewerStage.addEventListener('wheel', event => {
+      event.preventDefault();
+      view.zoom = Math.max(.1, Math.min(5, view.zoom * (event.deltaY < 0 ? 1.12 : .89)));
+      if (view.zoom === 1) view.x = view.y = 0;
+      constrainPan();
+      applyView();
+    }, { passive: false });
+    stageImage.addEventListener('dblclick', () => {
+      view.zoom = view.zoom === 1 ? 2 : 1;
+      if (view.zoom === 1) view.x = view.y = 0;
+      constrainPan();
+      applyView();
+    });
+
+    function jumpToWeek(weekId) {
+      if (state.query && !state.searchReturn) {
+        state.searchReturn = { query: state.query, data: state.searchData, year: state.year, scrollY: window.scrollY };
+      }
+      if (lightbox.open) lightbox.close();
+      state.query = '';
+      searchInput.value = '';
+      clearSearch.hidden = true;
+      state.mode = 'weeks';
+      state.year = weekId.slice(0, 4);
+      yearFilter.value = state.year;
+      document.querySelectorAll('.tab').forEach(tab => tab.classList.toggle('active', tab.dataset.mode === 'weeks'));
+      backToSearch.hidden = !state.searchReturn;
+      render();
+      requestAnimationFrame(() => {
+        const target = content.querySelector(`[data-week="${weekId}"]`);
+        target?.scrollIntoView({ behavior: 'smooth', block: 'center' });
+        target?.classList.add('week-target');
+        setTimeout(() => target?.classList.remove('week-target'), 1800);
+      });
+    }
+
+    backToSearch.onclick = () => {
+      const saved = state.searchReturn;
+      if (!saved) return;
+      state.query = saved.query;
+      state.searchData = saved.data;
+      state.year = saved.year;
+      searchInput.value = saved.query;
+      clearSearch.hidden = false;
+      yearFilter.value = saved.year;
+      state.searchReturn = null;
+      backToSearch.hidden = true;
+      renderSearch();
+      requestAnimationFrame(() => window.scrollTo({ top: saved.scrollY }));
+    };
+
+    document.querySelectorAll('.tab').forEach(tab => tab.onclick = () => {
+      state.mode = tab.dataset.mode;
+      document.querySelectorAll('.tab').forEach(item => item.classList.toggle('active', item === tab));
+      render(); window.scrollTo({ top: 250, behavior: 'smooth' });
+    });
+    yearFilter.onchange = () => {
+      state.year = yearFilter.value;
+      state.query ? runSearch() : render();
+    };
+    function applyReaderZoom() {
+      content.style.setProperty('--reader-width', `${1040 * state.scrollZoom / 100}px`);
+      content.style.setProperty('--spread-page-height', `${Math.max(240, (window.innerHeight - 184) * state.scrollZoom / 100)}px`);
+    }
+    function readerAnchor() {
+      const centerX = window.innerWidth / 2;
+      const centerY = window.innerHeight / 2;
+      const pages = [...content.querySelectorAll('[data-reader-page]')]
+        .map(element => ({ element, rect: element.getBoundingClientRect() }));
+      const visible = pages.filter(({ rect }) => rect.bottom >= centerY && rect.top <= centerY);
+      const candidates = visible.length ? visible : pages;
+      const score = ({ rect }) => {
+        const vertical = centerY < rect.top ? rect.top - centerY : centerY > rect.bottom ? centerY - rect.bottom : 0;
+        return vertical * 10 + Math.abs((rect.left + rect.right) / 2 - centerX);
+      };
+      return candidates.sort((a, b) => score(a) - score(b))[0];
+    }
+    let zoomFrame;
+    scrollZoom.oninput = () => {
+      const anchor = readerAnchor();
+      const centerY = window.innerHeight / 2;
+      const position = anchor ? (centerY - anchor.rect.top) / anchor.rect.height : .5;
+      state.scrollZoom = Number(scrollZoom.value);
+      scrollZoomValue.textContent = `${state.scrollZoom}%`;
+      applyReaderZoom();
+      cancelAnimationFrame(zoomFrame);
+      zoomFrame = requestAnimationFrame(() => {
+        if (!anchor) return;
+        const rect = anchor.element.getBoundingClientRect();
+        const oldBehavior = document.documentElement.style.scrollBehavior;
+        document.documentElement.style.scrollBehavior = 'auto';
+        window.scrollBy(0, rect.top + rect.height * position - centerY);
+        document.documentElement.style.scrollBehavior = oldBehavior;
+      });
+    };
+    window.addEventListener('resize', applyReaderZoom);
+
+    let searchTimer;
+    searchInput.oninput = () => {
+      state.query = searchInput.value.trim();
+      clearSearch.hidden = !state.query;
+      clearTimeout(searchTimer);
+      if (!state.query) { state.searchData = null; render(); return; }
+      state.searchData = null;
+      render();
+      searchTimer = setTimeout(runSearch, 250);
+    };
+    clearSearch.onclick = () => {
+      searchInput.value = '';
+      searchInput.dispatchEvent(new Event('input'));
+      searchInput.focus();
+    };
+    const staticImageUrl = (week, image) => `./output/${week}/images/${encodeURIComponent(image)}`;
+
+    function makeSnippet(text, terms) {
+      const compact = String(text || '').replace(/\s+/g, ' ').trim();
+      const folded = compact.toLocaleLowerCase();
+      const positions = terms.map(term => folded.indexOf(term)).filter(index => index >= 0);
+      const first = positions.length ? Math.min(...positions) : 0;
+      const start = Math.max(0, first - 70);
+      const end = Math.min(compact.length, first + 180);
+      return `${start ? '…' : ''}${compact.slice(start, end)}${end < compact.length ? '…' : ''}`;
+    }
+
+    function searchStaticIndex(query) {
+      const terms = query.toLocaleLowerCase().split(/\s+/).filter(Boolean);
+      const results = (state.searchIndex.records || [])
+        .filter(record => state.year === 'all' || record.week.startsWith(state.year))
+        .filter(record => terms.every(term => String(record.text || '').toLocaleLowerCase().includes(term)))
+        .slice(0, 200)
+        .map(record => ({
+          week: record.week,
+          image: record.image,
+          url: staticImageUrl(record.week, record.image),
+          page: Number.parseInt(record.image.split('_', 1)[0], 10) || 0,
+          snippet: makeSnippet(record.text, terms),
+        }));
+      return { results, indexed_weeks: state.searchIndex.indexed_weeks || 0, limited: results.length === 200 };
+    }
+
+    async function runSearch() {
+      const query = state.query;
+      if (!query) return;
+      try {
+        const data = searchStaticIndex(query);
+        if (query !== state.query) return;
+        state.searchData = data;
+        renderSearch();
+      } catch {
+        content.innerHTML = '<div class="empty">搜索暂时不可用，请重新启动服务器。</div>';
+      }
+    }
+
+    Promise.all([
+      fetch('./weeks.json').then(response => response.json()),
+      fetch('./search.json').then(response => response.ok ? response.json() : { records: [], indexed_weeks: 0 }),
+    ]).then(([weeks, searchIndex]) => {
+      state.weeks = weeks;
+      state.searchIndex = searchIndex;
+      [...new Set(weeks.map(w => w.id.slice(0, 4)))].forEach(year => yearFilter.insertAdjacentHTML('beforeend', `<option value="${year}">${year} 年</option>`));
+      render();
+    }).catch(() => content.innerHTML = '<div class="empty">周报读取失败，请重新启动服务器。</div>');
+  </script>
+</body>
+</html>

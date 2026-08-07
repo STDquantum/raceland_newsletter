@@ -20,6 +20,8 @@ from playwright.sync_api import BrowserContext, Response, sync_playwright
 PAGE_URL = "https://www.facebook.com/raceland.de"
 NEWSLETTER_MARKER = "Raceland Newsletter Magazin"
 ROOT = Path(__file__).resolve().parent
+SITE_DIR = ROOT / "docs"
+OUTPUT_DIR = SITE_DIR / "output"
 PROFILE = ROOT / "chrome-profile"
 COOKIE_FILE = ROOT / "cookies.txt"
 TESSDATA = ROOT / "tessdata"
@@ -526,14 +528,14 @@ def ocr_output(out, lang="deu+eng"):
 
 
 def write_ocr_index():
-    files = sorted((ROOT / "output").glob("????-W??/ocr.jsonl"))
-    (ROOT / "output" / "ocr-index.jsonl").write_text(
+    files = sorted(OUTPUT_DIR.glob("????-W??/ocr.jsonl"))
+    (OUTPUT_DIR / "ocr-index.jsonl").write_text(
         "".join(path.read_text(encoding="utf-8") for path in files), encoding="utf-8"
     )
 
 
 def ocr_all_outputs(lang):
-    outputs = sorted(path for path in (ROOT / "output").glob("????-W??") if (path / "images").is_dir())
+    outputs = sorted(path for path in OUTPUT_DIR.glob("????-W??") if (path / "images").is_dir())
     total = 0
     for out in outputs:
         print(f"开始 OCR {out.name}", flush=True)
@@ -594,7 +596,7 @@ def collect_local_pdf(args):
     sources = local_pdf_sources(start, end, args.pdf_dir)
     if not sources:
         raise RuntimeError(f"{label} 在 {args.pdf_dir} 中没有 YYYYMMDD.pdf；2026-07-10 起不再回退 Facebook")
-    out = ROOT / "output" / label
+    out = OUTPUT_DIR / label
     images_dir = out / "images"
     if images_dir.exists():
         shutil.rmtree(images_dir)
@@ -688,7 +690,7 @@ def collect(playwright, args):
     apply_date_filter(page, start)
     page.wait_for_timeout(5_000)
     dom_posts = extract_dom_posts(page, filter_date_for_week(start).year)
-    out = ROOT / "output" / label
+    out = OUTPUT_DIR / label
     images_dir = out / "images"
     images_dir.mkdir(parents=True, exist_ok=True)
     seen_posts, seen_urls, posts, downloaded, hashes = {}, set(), {}, [], set()
@@ -788,10 +790,11 @@ def main():
     parser = argparse.ArgumentParser(description="按周处理 Raceland Newsletter 图片并生成 PDF")
     parser.add_argument("--login", action="store_true", help="首次手动登录并保存独立会话")
     parser.add_argument("--cookie-file", type=Path, default=COOKIE_FILE, help="Cookie 请求头文件（默认 cookies.txt）")
-    parser.add_argument("--week", default="last", help="last（默认）、current 或 YYYY-Www")
+    parser.add_argument("--week", default="current", help="current（默认）、last 或 YYYY-Www")
     parser.add_argument("--headed", action="store_true", help="显示浏览器，便于排查登录/页面问题")
     parser.add_argument("--scrolls", type=int, default=20, help="最多向下加载次数")
-    parser.add_argument("--ocr", action="store_true", help="抓取后对当前周图片做 OCR")
+    parser.add_argument("--ocr", dest="ocr", action="store_true", default=True, help="抓取后对当前周图片做 OCR（默认开启）")
+    parser.add_argument("--no-ocr", dest="ocr", action="store_false", help="跳过当前周的 OCR")
     parser.add_argument("--ocr-all", action="store_true", help="对 output 中所有已有图片做 OCR，不访问 Facebook")
     parser.add_argument("--ocr-lang", default="deu+eng", help="Tesseract 语言（默认 deu+eng）")
     parser.add_argument("--pdf-dir", type=Path, default=LOCAL_PDF_DIR, help="2026-07-10 起的 Newsletter PDF 目录")
