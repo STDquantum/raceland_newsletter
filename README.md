@@ -35,10 +35,10 @@ OCR 默认使用 `deu+eng`，所需语言模型保存在 `tessdata/`，应一并
 首次部署时：
 
 1. 在 GitHub 新建仓库，并将本地仓库关联到该远程仓库。
-2. 在仓库的 **Settings → Pages** 中，将发布来源设为 **GitHub Actions**。
+2. 在仓库的 **Settings → Pages** 中，将发布来源设为 **Deploy from a branch**，选择 `main` 分支和 `/docs` 目录。
 3. 提交并推送项目内容。
 
-项目内的 `.github/workflows/deploy-pages.yml` 会在 `main` 分支收到推送后，将 `docs/` 部署到 GitHub Pages。
+GitHub Pages 会直接发布 `main` 分支中的 `docs/` 目录。每次向 `main` 推送更新后，网站会自动更新。
 
 每次运行完日常更新脚本后，手动提交并推送即可：
 
