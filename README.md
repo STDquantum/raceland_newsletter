@@ -1,71 +1,103 @@
-# Raceland Facebook 周报
+# Raceland Newsletter 周报网站
 
-## GitHub Pages 发布
+本项目将 Raceland Newsletter 按 ISO 周整理为图片周报，并生成可部署到 GitHub Pages 的静态图库。网站支持按周浏览、连续阅读、双页阅读和 OCR 文字搜索。
 
-网站发布文件位于 `docs/`。周报图片会直接生成到 `docs/output/YYYY-Www/images/`，因此所有图片都会随网站上传；本地 PDF、原始 OCR 文件和采集清单不会提交到 GitHub。
+## 日常更新
 
-首次使用时，在 GitHub 新建仓库并在本目录配置 `origin`，然后到仓库的 **Settings → Pages** 将发布来源设为 **GitHub Actions**。之后双击 `发布并部署周报.bat`，或运行：
+双击 `发布并部署周报.bat`，或在本目录运行：
 
 ```powershell
 .\发布并部署周报.bat
 ```
 
-该命令会依次采集当周周报、完成 OCR 并更新静态网页索引。之后请自行提交并推送 `docs/` 及相关代码；推送后 Pages 会自动部署。OCR 默认开启，需要跳过 OCR 时追加 `--no-ocr`。需要处理上一周时，明确传入 `--week last`。
+该命令默认处理**当周**（`current`）：采集或渲染周报图片、执行 OCR，并更新网站索引文件。它不会执行 Git 提交或推送，更新完成后请自行提交并推送。
 
-抓取 `https://www.facebook.com/raceland.de` 指定自然周内正文包含 `Raceland Newsletter Magazin`（同时匹配德文 `Magazin` 和英文 `Magazine`）的图片帖子，按实际发布日期分周，下载页面接口暴露的最大尺寸图片，并生成一份 PDF。程序会先读取首屏 DOM 中的顶部帖子，再处理后续 GraphQL Feed；遇到时间线只显示 5 张和 `+N` 的帖子时，会自动打开照片查看器并遍历全部附件。其他帖子会被忽略。仅处理当前账号可正常看到的内容，不绕过登录、验证码或访问控制。
-
-进入页面后会先按目标 ISO 周的周五选择 Facebook 年份和月份；跨月周以周五所在月份为准。筛选控件临时不可用时才回退到连续滚动。
-
-## 2026-07-10 起使用本地 PDF
-
-2026-07-10 起不再访问 Facebook。程序会在 `D:\F1\raceland_Newsletter` 查找文件名为 `YYYYMMDD.pdf` 的周报，按文件名日期归入 ISO 周，并将每个完整页面以 200 DPI 渲染到对应周的 `images/`。本地 PDF 缺失时会直接报错，不回退 Facebook。可用 `--pdf-dir` 指定其他目录。
+常用参数：
 
 ```powershell
-& 'D:\conda\env3.10\python.exe' .\facebook_newsletter.py --week 2026-W30 --ocr
+# 处理上一周
+.\发布并部署周报.bat --week last
+
+# 处理指定 ISO 周
+.\发布并部署周报.bat --week 2026-W32
+
+# 显示浏览器以排查 Facebook 登录或页面问题
+.\发布并部署周报.bat --headed
+
+# 跳过 OCR
+.\发布并部署周报.bat --no-ocr
 ```
 
-## 使用日常 Chrome Cookie（推荐）
+OCR 默认使用 `deu+eng`，所需语言模型保存在 `tessdata/`，应一并提交到 Git。
 
-1. 在日常 Chrome 登录 Facebook，按 `F12` 打开开发者工具。
-2. 进入 **Network**，刷新 Facebook 页面，点最上面的文档请求（通常是 `facebook.com`）。
-3. 在 **Headers > Request Headers** 中复制完整的 `Cookie` 值。
-4. 在本目录新建 `cookies.txt`，只粘贴这一行 Cookie；不要把内容发到聊天或提交到 Git。
-5. 正常运行：
+## GitHub Pages 部署
+
+首次部署时：
+
+1. 在 GitHub 新建仓库，并将本地仓库关联到该远程仓库。
+2. 在仓库的 **Settings → Pages** 中，将发布来源设为 **GitHub Actions**。
+3. 提交并推送项目内容。
+
+项目内的 `.github/workflows/deploy-pages.yml` 会在 `main` 分支收到推送后，将 `docs/` 部署到 GitHub Pages。
+
+每次运行完日常更新脚本后，手动提交并推送即可：
 
 ```powershell
-& 'D:\conda\env3.10\python.exe' .\facebook_newsletter.py --headed --week current
+git add docs facebook_newsletter.py build_static_site.py publish_weekly.py tessdata README.md .gitignore
+git commit -m "更新周报"
+git push
 ```
 
-`c_user` 和 `xs` 是登录所需的关键 Cookie；推荐复制完整请求头，让 Facebook 同时获得浏览器安全 Cookie。会话过期后重新复制即可。
+## 文件结构
 
-## 单独登录（备选）
+```text
+docs/                         GitHub Pages 发布目录
+├─ index.html                 图库页面
+├─ weeks.json                 周报和图片清单
+├─ search.json                OCR 搜索索引
+└─ output/YYYY-Www/images/    发布的周报图片
+
+facebook_newsletter.py        周报采集、PDF 渲染和 OCR
+build_static_site.py          从已有周报数据生成网站索引
+publish_weekly.py             串联采集、OCR 与网站索引更新
+tessdata/                     Tesseract 德语、英语语言模型
+```
+
+图片直接生成在 `docs/output/YYYY-Www/images/`，因此会随网站发布。PDF、原始 OCR 文件和采集清单仅用于本地处理，已由 `.gitignore` 排除，不会上传。
+
+## 周报来源
+
+自 2026-07-10 起，程序默认从本地 PDF 目录 `D:\F1\raceland_Newsletter` 读取文件名为 `YYYYMMDD.pdf` 的周报，并按文件名日期归入 ISO 周。可用 `--pdf-dir` 指定其他 PDF 目录：
+
+```powershell
+.\发布并部署周报.bat --week 2026-W32 --pdf-dir "D:\其他目录"
+```
+
+较早的周报会从 Facebook 页面采集。程序只处理当前账号可正常访问的内容，不尝试绕过登录、验证码或访问控制。
+
+## Facebook 登录（仅采集旧周报时需要）
+
+推荐在日常 Chrome 中登录 Facebook 后，将请求头中的完整 `Cookie` 值保存为本目录的 `cookies.txt`。该文件不会提交到 Git。
+
+如需建立独立登录会话，可运行：
 
 ```powershell
 & 'D:\conda\env3.10\python.exe' .\facebook_newsletter.py --login
 ```
 
-程序会打开电脑上已安装的正式 Google Chrome。在其中手动登录 Facebook，再回到终端按 Enter。登录状态保存在本目录的 `chrome-profile` 中。
+登录状态保存在 `chrome-profile/`，不要删除。
 
-## 运行
+## 仅重建网站索引
+
+如果图片和 OCR 数据已经存在，只需重建 `weeks.json` 与 `search.json`：
 
 ```powershell
-# 上一个完整自然周（适合每周一运行）
-& 'D:\conda\env3.10\python.exe' .\facebook_newsletter.py
-
-# 指定周或显示浏览器排查
-& 'D:\conda\env3.10\python.exe' .\facebook_newsletter.py --week 2026-W29 --headed
+& 'D:\conda\env3.10\python.exe' .\build_static_site.py
 ```
 
-结果位于 `output/YYYY-Www/`：原图在 `images/`，`manifest.json` 记录帖子、图片来源，以及实际识别为帖子载荷的 GraphQL `operation`/`doc_id`，PDF 文件名为 `raceland-YYYY-Www.pdf`。
-
-## OCR 和检索索引
+若要对所有已有图片重新执行 OCR，运行：
 
 ```powershell
-# 抓取完当前周后立即 OCR
-& 'D:\conda\env3.10\python.exe' .\facebook_newsletter.py --week 2026-W29 --headed --ocr
-
-# 仅对 output 里所有已有图片做 OCR，不访问 Facebook
 & 'D:\conda\env3.10\python.exe' .\facebook_newsletter.py --ocr-all
+& 'D:\conda\env3.10\python.exe' .\build_static_site.py
 ```
-
-默认使用 Tesseract `deu+eng`。每周目录会生成 `ocr.jsonl` 和 `ocr.txt`；`output/ocr-index.jsonl` 是所有周的合并索引，可直接逐行导入检索系统。每条 JSON 包含 `week`、`image`、`post_id`、`text`，以及带置信度和坐标的 `words`。OCR 支持断点续跑；原图未变时会直接跳过。
