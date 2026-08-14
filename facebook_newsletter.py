@@ -27,7 +27,11 @@ COOKIE_FILE = ROOT / "cookies.txt"
 TESSDATA = ROOT / "tessdata"
 OCR_VERSION = 2
 LOCAL_PDF_START = date(2026, 7, 10)
-LOCAL_PDF_DIR = Path(r"D:\F1\raceland_Newsletter")
+LOCAL_PDF_DIR = (
+    Path(os.environ.get("RACELAND_PDF_DIR", ROOT / "f1-source" / "raceland_Newsletter"))
+    if os.environ.get("GITHUB_ACTIONS") == "true"
+    else Path(r"D:\F1\raceland_Newsletter")
+)
 BERLIN = ZoneInfo("Europe/Berlin")
 CDN_RE = re.compile(r"https?://[^\"' ]+(?:fbcdn\.net|fbsbx\.com)[^\"' ]*", re.I)
 

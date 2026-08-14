@@ -48,6 +48,12 @@ git commit -m "更新周报"
 git push
 ```
 
+## 自动发布
+
+`.github/workflows/publish-weekly.yml` 会在每周五 21:00（北京时间；GitHub Actions 使用的 UTC cron 为 `0 13 * * 5`）运行与 `发布并部署周报.bat` 相同的 Python 发布流程，并将更新后的 `docs/` 提交到本仓库，由 GitHub Pages 自动部署。也可以在 Actions 页面通过 **Run workflow** 手动运行。
+
+在 GitHub Actions 中，脚本会从 `STDquantum/F1` 检出的 `raceland_Newsletter/` 读取 PDF；本地运行时仍默认从 `D:\F1\raceland_Newsletter` 读取。若 `STDquantum/F1` 是私有仓库，请创建具有该仓库只读权限的 fine-grained PAT，并把它存为本仓库的 Actions secret `F1_REPO_TOKEN`。
+
 ## 文件结构
 
 ```text
@@ -67,7 +73,7 @@ tessdata/                     Tesseract 德语、英语语言模型
 
 ## 周报来源
 
-自 2026-07-10 起，程序默认从本地 PDF 目录 `D:\F1\raceland_Newsletter` 读取文件名为 `YYYYMMDD.pdf` 的周报，并按文件名日期归入 ISO 周。可用 `--pdf-dir` 指定其他 PDF 目录：
+自 2026-07-10 起，程序默认从本地 PDF 目录 `D:\F1\raceland_Newsletter` 读取文件名为 `YYYYMMDD.pdf` 的周报，并按文件名日期归入 ISO 周。GitHub Actions 运行时则自动读取它检出的 `STDquantum/F1/raceland_Newsletter`。可用 `--pdf-dir` 指定其他 PDF 目录：
 
 ```powershell
 .\发布并部署周报.bat --week 2026-W32 --pdf-dir "D:\其他目录"
