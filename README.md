@@ -12,23 +12,25 @@
 
 该命令默认使用 `current` 参数，完成周报图片处理、OCR 和网站索引生成。命令不执行 Git 提交或推送。
 
-常用参数：
+处理参数（对应 `publish_weekly.py`）：
+
+| 参数 | 默认值 | 作用 |
+| --- | --- | --- |
+| `--week` | `current` | 指定 `current`、`last` 或 ISO 周，例如 `2026-W32` |
+| `--headed` | 关闭 | 显示浏览器窗口，便于排查 Facebook 页面问题 |
+| `--pdf-dir` | `raceland_Newsletter/` | 指定周报 PDF 目录 |
+| `--ocr-lang` | `deu+eng` | 指定 Tesseract OCR 语言 |
+| `--no-ocr` | 关闭 | 不执行 OCR |
+
+示例：
 
 ```powershell
-# 使用上一周参数
-.\发布并部署周报.bat --week last
-
-# 使用指定 ISO 周参数
 .\发布并部署周报.bat --week 2026-W32
-
-# 显示浏览器窗口
 .\发布并部署周报.bat --headed
-
-# 不执行 OCR
+.\发布并部署周报.bat --pdf-dir "D:\其他目录"
+.\发布并部署周报.bat --ocr-lang deu+eng
 .\发布并部署周报.bat --no-ocr
 ```
-
-OCR 默认使用 `deu+eng`，所需语言模型保存在 `tessdata/`，应一并提交到 Git。
 
 ## GitHub Pages
 
@@ -37,16 +39,6 @@ OCR 默认使用 `deu+eng`，所需语言模型保存在 `tessdata/`，应一并
 1. 在 GitHub 新建仓库，并将本地仓库关联到该远程仓库。
 2. 在仓库的 **Settings → Pages** 中，将发布来源设为 **Deploy from a branch**，选择 `main` 分支和 `/docs` 目录。
 3. 提交并推送项目内容。
-
-GitHub Pages 的发布源为 `main` 分支中的 `docs/` 目录。
-
-Git 提交示例：
-
-```powershell
-git add docs raceland_Newsletter scripts/split_raceland_pdf.py facebook_newsletter.py build_static_site.py publish_weekly.py tessdata README.md .gitignore
-git commit -m "发布周报"
-git push
-```
 
 ## GitHub Actions 发布
 
@@ -92,12 +84,12 @@ Facebook 页面采集使用 `cookies.txt` 中的完整 `Cookie` 请求头。该�
 根据图片和 OCR 数据重建 `weeks.json` 与 `search.json`：
 
 ```powershell
-& 'D:\conda\env3.10\python.exe' .\build_static_site.py
+python .\build_static_site.py
 ```
 
 对全部周报图片执行 OCR：
 
 ```powershell
-& 'D:\conda\env3.10\python.exe' .\facebook_newsletter.py --ocr-all
-& 'D:\conda\env3.10\python.exe' .\build_static_site.py
+python .\facebook_newsletter.py --ocr-all
+python .\build_static_site.py
 ```

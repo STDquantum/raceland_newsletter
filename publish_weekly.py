@@ -45,7 +45,7 @@ def main() -> None:
 
     run(collect_command)
     run([sys.executable, str(BUILDER)])
-    print("网站文件已更新；请自行提交并推送 docs/ 及相关代码。")
+    print("网站文件已生成。")
 
 
 if __name__ == "__main__":
