@@ -50,9 +50,9 @@ git push
 
 ## 自动发布
 
-`.github/workflows/publish-weekly.yml` 会在每周五 21:00（北京时间；GitHub Actions 使用的 UTC cron 为 `0 13 * * 5`）运行与 `发布并部署周报.bat` 相同的 Python 发布流程，并将更新后的 `docs/` 提交到本仓库，由 GitHub Pages 自动部署。也可以在 Actions 页面通过 **Run workflow** 手动运行。
+`.github/workflows/publish-weekly.yml` 会在每周五 20:30（北京时间；GitHub Actions 使用的 UTC cron 为 `30 12 * * 5`）运行发布流程，并将更新后的 `docs/` 和 `raceland_Newsletter/` 提交到本仓库，由 GitHub Pages 自动部署。工作流会先从 Raceland 下载合并 PDF，再使用本仓库的拆分脚本更新最新一期和上一期 PDF，最后执行 OCR 和站点构建。也可以在 Actions 页面通过 **Run workflow** 手动运行。
 
-在 GitHub Actions 中，脚本会从 `STDquantum/F1` 检出的 `raceland_Newsletter/` 读取 PDF；本地运行时仍默认从 `D:\F1\raceland_Newsletter` 读取。若 `STDquantum/F1` 是私有仓库，请创建具有该仓库只读权限的 fine-grained PAT，并把它存为本仓库的 Actions secret `F1_REPO_TOKEN`。
+`raceland_Newsletter/` 目录和拆分脚本已纳入本仓库；本地运行和 GitHub Actions 均使用该目录。Action 每次下载新 PDF 后会覆盖或新增对应日期文件，并将更新后的 PDF 与网站内容一起提交。
 
 ## 文件结构
 
@@ -63,6 +63,8 @@ docs/                         GitHub Pages 发布目录
 ├─ search.json                OCR 搜索索引
 └─ output/YYYY-Www/images/    发布的周报图片
 
+raceland_Newsletter/          按日期归档的 Raceland PDF
+scripts/split_raceland_pdf.py 从合并 PDF 拆分周报
 facebook_newsletter.py        周报采集、PDF 渲染和 OCR
 build_static_site.py          从已有周报数据生成网站索引
 publish_weekly.py             串联采集、OCR 与网站索引更新
@@ -73,7 +75,7 @@ tessdata/                     Tesseract 德语、英语语言模型
 
 ## 周报来源
 
-自 2026-07-10 起，程序默认从本地 PDF 目录 `D:\F1\raceland_Newsletter` 读取文件名为 `YYYYMMDD.pdf` 的周报，并按文件名日期归入 ISO 周。GitHub Actions 运行时则自动读取它检出的 `STDquantum/F1/raceland_Newsletter`。可用 `--pdf-dir` 指定其他 PDF 目录：
+自 2026-07-10 起，程序默认从本地 PDF 目录 `raceland_Newsletter` 读取文件名为 `YYYYMMDD.pdf` 的周报，并按文件名日期归入 ISO 周。可用 `--pdf-dir` 指定其他 PDF 目录：
 
 ```powershell
 .\发布并部署周报.bat --week 2026-W32 --pdf-dir "D:\其他目录"

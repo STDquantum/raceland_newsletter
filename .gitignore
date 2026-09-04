@@ -14,3 +14,4 @@ gallery-local-backup/
 __pycache__/
 profile/
 .vscode/
+tmp/

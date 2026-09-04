@@ -1,9 +1,9 @@
 name: Publish weekly Raceland newsletter
 
 on:
-  # GitHub Actions cron uses UTC: 13:00 UTC is 21:00 in Asia/Shanghai.
+  # GitHub Actions cron uses UTC: 12:30 UTC is 20:30 in Asia/Shanghai.
   schedule:
-    - cron: "0 13 * * 5"
+    - cron: "30 12 * * 5"
   workflow_dispatch:
 
 permissions:
@@ -21,14 +21,6 @@ jobs:
       - name: Check out newsletter site
         uses: actions/checkout@v4
 
-      - name: Check out newsletter PDF source
-        uses: actions/checkout@v4
-        with:
-          repository: STDquantum/F1
-          path: f1-source
-          # The secret is required only when STDquantum/F1 is private.
-          token: ${{ secrets.F1_REPO_TOKEN || github.token }}
-
       - name: Set up Python
         uses: actions/setup-python@v5
         with:
@@ -37,18 +29,34 @@ jobs:
       - name: Install publishing dependencies
         run: |
           python -m pip install --upgrade pip
-          python -m pip install pillow playwright pymupdf pytesseract
+          python -m pip install pillow playwright pymupdf pytesseract pypdf
           sudo apt-get update
           sudo apt-get install --yes tesseract-ocr tesseract-ocr-deu tesseract-ocr-eng
 
+      - name: Download combined newsletter PDF
+        run: |
+          mkdir -p tmp
+          curl --fail --location --retry 3 --retry-delay 5 \
+            --user-agent "raceland-newsletter-actions" \
+            --output tmp/ausgabe.pdf \
+            https://newsletter.raceland.de/gb/epaper/ausgabe.pdf
+
+      - name: Split newest and previous newsletters
+        run: |
+          python scripts/split_raceland_pdf.py \
+            --input tmp/ausgabe.pdf \
+            --output-dir raceland_Newsletter \
+            --archive-dir raceland_Newsletter \
+            --manifest tmp/raceland-manifest.txt
+
       - name: Publish this week's newsletter
         env:
-          RACELAND_PDF_DIR: ${{ github.workspace }}/f1-source/raceland_Newsletter
+          RACELAND_PDF_DIR: ${{ github.workspace }}/raceland_Newsletter
         run: python publish_weekly.py --week current
 
       - name: Commit and deploy generated site
         run: |
-          git add docs
+          git add docs raceland_Newsletter scripts/split_raceland_pdf.py
           if git diff --cached --quiet; then
             echo "No site changes to commit."
             exit 0
