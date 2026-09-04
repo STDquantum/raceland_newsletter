@@ -22,7 +22,6 @@ NEWSLETTER_MARKER = "Raceland Newsletter Magazin"
 ROOT = Path(__file__).resolve().parent
 SITE_DIR = ROOT / "docs"
 OUTPUT_DIR = SITE_DIR / "output"
-PROFILE = ROOT / "chrome-profile"
 COOKIE_FILE = ROOT / "cookies.txt"
 TESSDATA = ROOT / "tessdata"
 OCR_VERSION = 2
@@ -522,18 +521,7 @@ def ocr_output(out, lang="deu+eng"):
             output.write(json.dumps(record, ensure_ascii=False) + "\n")
         done += 1
         print(f"  OCR {out.name} {index}/{len(images)} {path.name}", flush=True)
-    ordered = [records[path.name] for path in images if path.name in records]
-    (out / "ocr.txt").write_text(
-        "\n\n".join(f"## {record['image']}\n{record['text']}" for record in ordered) + "\n", encoding="utf-8"
-    )
     return done
-
-
-def write_ocr_index():
-    files = sorted(OUTPUT_DIR.glob("????-W??/ocr.jsonl"))
-    (OUTPUT_DIR / "ocr-index.jsonl").write_text(
-        "".join(path.read_text(encoding="utf-8") for path in files), encoding="utf-8"
-    )
 
 
 def ocr_all_outputs(lang):
@@ -542,7 +530,6 @@ def ocr_all_outputs(lang):
     for out in outputs:
         print(f"开始 OCR {out.name}", flush=True)
         total += ocr_output(out, lang)
-    write_ocr_index()
     print(f"OCR 完成：{len(outputs)} 个周目录，新识别 {total} 张图片", flush=True)
 
 
@@ -569,16 +556,6 @@ def add_cookie_file(context, path):
         print(f"已从 {path.name} 注入 Facebook Cookie", flush=True)
 
 
-def login(playwright):
-    context = playwright.chromium.launch_persistent_context(
-        str(PROFILE), channel="chrome", headless=False, locale="de-DE"
-    )
-    page = context.pages[0] if context.pages else context.new_page()
-    page.goto(PAGE_URL, wait_until="domcontentloaded", timeout=90_000)
-    input("请在浏览器中完成 Facebook 登录，然后回到这里按 Enter 保存会话……")
-    context.close()
-
-
 def local_pdf_sources(start, end, directory):
     sources = []
     for path in directory.glob("*.pdf"):
@@ -603,8 +580,7 @@ def collect_local_pdf(args):
     if images_dir.exists():
         shutil.rmtree(images_dir)
     images_dir.mkdir(parents=True, exist_ok=True)
-    for stale in (out / "ocr.jsonl", out / "ocr.txt"):
-        stale.unlink(missing_ok=True)
+    (out / "ocr.jsonl").unlink(missing_ok=True)
     posts, downloaded = [], []
     image_number = 0
     for issue_date, source in sources:
@@ -653,7 +629,6 @@ def collect_local_pdf(args):
     make_pdf(posts, downloaded, output_pdf, label, start, end, "Raceland Newsletter")
     if args.ocr:
         ocr_output(out, args.ocr_lang)
-        write_ocr_index()
     print(f"完成：{len(sources)} 份本地 PDF，{len(downloaded)} 页，{output_pdf}", flush=True)
 
 
@@ -769,7 +744,7 @@ def collect(playwright, args):
     context.close()
     browser.close()
     if not captured:
-        raise RuntimeError("没有捕获到帖子 GraphQL 请求；请先运行 --login，或用 --headed 检查登录状态")
+        raise RuntimeError("没有捕获到帖子 GraphQL 请求；请检查 cookies.txt 是否有效，或用 --headed 检查登录状态")
     if not posts:
         found = sorted(
             {
@@ -784,13 +759,11 @@ def collect(playwright, args):
     make_pdf(posts, downloaded, out / f"raceland-{label}.pdf", label, start, end)
     if args.ocr:
         ocr_output(out, args.ocr_lang)
-        write_ocr_index()
     print(f"完成：{len(posts)} 个帖子，{len(downloaded)} 张原图，{out / f'raceland-{label}.pdf'}", flush=True)
 
 
 def main():
     parser = argparse.ArgumentParser(description="按周处理 Raceland Newsletter 图片并生成 PDF")
-    parser.add_argument("--login", action="store_true", help="首次手动登录并保存独立会话")
     parser.add_argument("--cookie-file", type=Path, default=COOKIE_FILE, help="Cookie 请求头文件（默认 cookies.txt）")
     parser.add_argument("--week", default="current", help="current（默认）、last 或 YYYY-Www")
     parser.add_argument("--headed", action="store_true", help="显示浏览器，便于排查登录/页面问题")
@@ -803,10 +776,6 @@ def main():
     args = parser.parse_args()
     if args.ocr_all:
         ocr_all_outputs(args.ocr_lang)
-        return
-    if args.login:
-        with sync_playwright() as playwright:
-            login(playwright)
         return
     start, _, _ = week_range(args.week)
     if filter_date_for_week(start) >= LOCAL_PDF_START:

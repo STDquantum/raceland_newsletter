@@ -1,0 +1,156 @@
+{
+  "source": "local_pdf",
+  "week": "2026-W31",
+  "source_pdfs": [
+    "D:\\F1\\raceland_Newsletter\\20260731.pdf"
+  ],
+  "posts": [
+    {
+      "id": "pdf-20260731",
+      "created": "2026-07-31T00:00:00+02:00",
+      "text": "",
+      "url": "D:\\F1\\raceland_Newsletter\\20260731.pdf",
+      "images": [
+        {
+          "downloaded": "001_20260731_page-001.jpg",
+          "source_pdf": "D:\\F1\\raceland_Newsletter\\20260731.pdf",
+          "source_page": 1,
+          "width": 1654,
+          "height": 2339,
+          "pixels": 3868706
+        },
+        {
+          "downloaded": "002_20260731_page-002.jpg",
+          "source_pdf": "D:\\F1\\raceland_Newsletter\\20260731.pdf",
+          "source_page": 2,
+          "width": 1654,
+          "height": 2339,
+          "pixels": 3868706
+        },
+        {
+          "downloaded": "003_20260731_page-003.jpg",
+          "source_pdf": "D:\\F1\\raceland_Newsletter\\20260731.pdf",
+          "source_page": 3,
+          "width": 1654,
+          "height": 2339,
+          "pixels": 3868706
+        },
+        {
+          "downloaded": "004_20260731_page-004.jpg",
+          "source_pdf": "D:\\F1\\raceland_Newsletter\\20260731.pdf",
+          "source_page": 4,
+          "width": 1654,
+          "height": 2339,
+          "pixels": 3868706
+        },
+        {
+          "downloaded": "005_20260731_page-005.jpg",
+          "source_pdf": "D:\\F1\\raceland_Newsletter\\20260731.pdf",
+          "source_page": 5,
+          "width": 1654,
+          "height": 2339,
+          "pixels": 3868706
+        },
+        {
+          "downloaded": "006_20260731_page-006.jpg",
+          "source_pdf": "D:\\F1\\raceland_Newsletter\\20260731.pdf",
+          "source_page": 6,
+          "width": 1654,
+          "height": 2339,
+          "pixels": 3868706
+        },
+        {
+          "downloaded": "007_20260731_page-007.jpg",
+          "source_pdf": "D:\\F1\\raceland_Newsletter\\20260731.pdf",
+          "source_page": 7,
+          "width": 1654,
+          "height": 2339,
+          "pixels": 3868706
+        },
+        {
+          "downloaded": "008_20260731_page-008.jpg",
+          "source_pdf": "D:\\F1\\raceland_Newsletter\\20260731.pdf",
+          "source_page": 8,
+          "width": 1654,
+          "height": 2339,
+          "pixels": 3868706
+        },
+        {
+          "downloaded": "009_20260731_page-009.jpg",
+          "source_pdf": "D:\\F1\\raceland_Newsletter\\20260731.pdf",
+          "source_page": 9,
+          "width": 1654,
+          "height": 2339,
+          "pixels": 3868706
+        },
+        {
+          "downloaded": "010_20260731_page-010.jpg",
+          "source_pdf": "D:\\F1\\raceland_Newsletter\\20260731.pdf",
+          "source_page": 10,
+          "width": 1654,
+          "height": 2339,
+          "pixels": 3868706
+        },
+        {
+          "downloaded": "011_20260731_page-011.jpg",
+          "source_pdf": "D:\\F1\\raceland_Newsletter\\20260731.pdf",
+          "source_page": 11,
+          "width": 1654,
+          "height": 2339,
+          "pixels": 3868706
+        },
+        {
+          "downloaded": "012_20260731_page-012.jpg",
+          "source_pdf": "D:\\F1\\raceland_Newsletter\\20260731.pdf",
+          "source_page": 12,
+          "width": 1654,
+          "height": 2339,
+          "pixels": 3868706
+        },
+        {
+          "downloaded": "013_20260731_page-013.jpg",
+          "source_pdf": "D:\\F1\\raceland_Newsletter\\20260731.pdf",
+          "source_page": 13,
+          "width": 1654,
+          "height": 2339,
+          "pixels": 3868706
+        },
+        {
+          "downloaded": "014_20260731_page-014.jpg",
+          "source_pdf": "D:\\F1\\raceland_Newsletter\\20260731.pdf",
+          "source_page": 14,
+          "width": 1654,
+          "height": 2339,
+          "pixels": 3868706
+        },
+        {
+          "downloaded": "015_20260731_page-015.jpg",
+          "source_pdf": "D:\\F1\\raceland_Newsletter\\20260731.pdf",
+          "source_page": 15,
+          "width": 1654,
+          "height": 2339,
+          "pixels": 3868706
+        },
+        {
+          "downloaded": "016_20260731_page-016.jpg",
+          "source_pdf": "D:\\F1\\raceland_Newsletter\\20260731.pdf",
+          "source_page": 16,
+          "width": 1654,
+          "height": 2339,
+          "pixels": 3868706
+        },
+        {
+          "downloaded": "017_20260731_page-017.jpg",
+          "source_pdf": "D:\\F1\\raceland_Newsletter\\20260731.pdf",
+          "source_page": 17,
+          "width": 1654,
+          "height": 2339,
+          "pixels": 3868706
+        }
+      ],
+      "image_count": 17,
+      "issue_week": "2026-W31"
+    }
+  ],
+  "graphql_requests": []
+}
