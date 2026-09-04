@@ -52,7 +52,7 @@ git push
 
 `.github/workflows/publish-weekly.yml` 会在每周五 20:30（北京时间；GitHub Actions 使用的 UTC cron 为 `30 12 * * 5`）运行发布流程，并将更新后的 `docs/` 和 `raceland_Newsletter/` 提交到本仓库，由 GitHub Pages 自动部署。工作流会先从 Raceland 下载合并 PDF，再使用本仓库的拆分脚本更新最新一期和上一期 PDF，最后执行 OCR 和站点构建。也可以在 Actions 页面通过 **Run workflow** 手动运行。
 
-`raceland_Newsletter/` 目录和拆分脚本已纳入本仓库；本地运行和 GitHub Actions 均使用该目录。Action 每次下载新 PDF 后会覆盖或新增对应日期文件，并将更新后的 PDF 与网站内容一起提交。
+周报 PDF 按 `YYYYMMDD.pdf` 的格式存放在 `raceland_Newsletter/`，拆分逻辑位于 `scripts/split_raceland_pdf.py`。本地运行和 GitHub Actions 都从该目录读取周报；Action 每次下载新 PDF 后，会更新对应日期的文件，并将 PDF 与网站内容一并提交。
 
 ## 文件结构
 
