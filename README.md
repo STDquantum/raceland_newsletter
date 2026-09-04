@@ -67,7 +67,7 @@ raceland_Newsletter/          按日期归档的 Raceland PDF
 scripts/split_raceland_pdf.py 从合并 PDF 拆分周报
 facebook_newsletter.py        周报采集、PDF 渲染和 OCR
 build_static_site.py          根据周报数据生成网站索引
-publish_weekly.py              串联采集、OCR 与网站索引生成
+publish_weekly.py             串联采集、OCR 与网站索引生成
 tessdata/                     Tesseract 德语、英语语言模型
 ```
 
