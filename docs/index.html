@@ -32,6 +32,7 @@
     button { color: inherit; }
     .shell { max-width: 1480px; margin: auto; padding: 24px 28px 70px; }
     header {
+      position: relative;
       min-height: 270px;
       display: flex;
       align-items: flex-end;
@@ -40,6 +41,8 @@
       padding: 48px 0 34px;
       border-bottom: 1px solid var(--line);
     }
+    .backnav { position: absolute; top: 20px; left: 0; color: var(--ink); text-decoration: none; font-size: 13px; font-weight: 700; opacity: .75; }
+    .backnav:hover, .backnav:focus-visible { color: var(--accent); opacity: 1; text-decoration: underline; }
     .eyebrow { margin: 0 0 10px; letter-spacing: .24em; font-size: 12px; font-weight: 800; color: var(--accent); }
     h1 { margin: 0; max-width: 800px; font-family: Georgia, "Songti SC", serif; font-size: clamp(46px, 7vw, 98px); font-weight: 500; line-height: .95; letter-spacing: -.045em; }
     .lede { max-width: 390px; margin: 0 0 6px; color: var(--muted); line-height: 1.8; font-size: 15px; }
@@ -157,6 +160,7 @@
 <body>
   <main class="shell">
     <header>
+      <a class="backnav" href="https://stdquantum.github.io/F1/index.html">← 返回导航</a>
       <div>
         <p class="eyebrow">WEEKLY FIELD NOTES</p>
         <h1>汽车模型周报<br>影像志</h1>
