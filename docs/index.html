@@ -390,10 +390,8 @@
     }
 
     function constrainPan() {
-      const maxX = Math.max(0, (stageImage.offsetWidth * view.zoom - viewerStage.clientWidth) / 2);
-      const maxY = Math.max(0, (stageImage.offsetHeight * view.zoom - viewerStage.clientHeight) / 2);
-      view.x = clamp(view.x, maxX);
-      view.y = clamp(view.y, maxY);
+      view.x = clamp(view.x, stageImage.offsetWidth * view.zoom / 2);
+      view.y = clamp(view.y, stageImage.offsetHeight * view.zoom / 2);
     }
 
     function updateViewer(rebuildThumbs = false) {
