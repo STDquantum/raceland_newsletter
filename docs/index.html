@@ -88,7 +88,7 @@
     .week-count { font-size: 12px; opacity: .85; }
     .continuous { width: var(--reader-width, 1040px); max-width: 100%; margin: 22px auto 0; }
     .continuous-week { margin: 0 0 70px; }
-    .continuous-head { position: sticky; top: var(--reader-sticky-top); z-index: 5; display: flex; justify-content: space-between; padding: 12px 2px; background: rgba(247,244,236,.9); backdrop-filter: blur(12px); border-bottom: 1px solid var(--line); }
+    .continuous-head { position: sticky; top: var(--reader-sticky-top); z-index: 5; display: flex; justify-content: space-between; padding: 12px 2px; background: var(--paper); border-bottom: 1px solid var(--line); }
     .continuous-head strong { font: 500 26px Georgia, serif; }
     .continuous-head span { color: var(--muted); font-size: 13px; align-self: center; }
     .page-stack { display: grid; gap: 14px; padding-top: 14px; }
@@ -144,8 +144,10 @@
       .search-box { flex: 1; }
       .search-box input { width: 100%; }
       .tab { padding: 10px; white-space: nowrap; }
+      .tab[data-mode="spreads"] { display: none; }
       .result-grid { grid-template-columns: repeat(2, 1fr); gap: 10px; }
       .zoom-control { width: 100%; }
+      .continuous .continuous-head { position: static; }
       .zoom-control input { flex: 1; width: auto; }
       .week-grid { grid-template-columns: repeat(2, 1fr); gap: 10px; }
       .week-card { border-radius: 16px; }
@@ -225,6 +227,8 @@
   </dialog>
   <button class="back-to-search" id="backToSearch" hidden>← 返回搜索结果</button>
 
+  <script src="weeks.js"></script>
+  <script src="search.js"></script>
   <script>
     const state = { weeks: [], mode: 'weeks', year: 'all', viewerItems: [], viewerSource: 'week', index: 0, scrollZoom: 100, query: '', searchData: null, searchIndex: { records: [], indexed_weeks: 0 }, searchReturn: null };
     const view = { zoom: 1, x: 0, y: 0, dragging: false, startX: 0, startY: 0 };
@@ -634,20 +638,16 @@
       }
     }
 
-    Promise.all([
-      fetch('./weeks.json', { cache: 'no-cache' }).then(response => response.json()),
-      fetch('./search.json', { cache: 'no-cache' }).then(response => response.ok ? response.json() : { records: [], indexed_weeks: 0 }),
-    ]).then(([weeks, searchIndex]) => {
+    const weeks = window.RACELAND_WEEKS;
+    const searchIndex = window.RACELAND_SEARCH_INDEX;
+    if (!Array.isArray(weeks) || !searchIndex) {
+      content.innerHTML = '<div class="empty">周报数据文件读取失败，请确认 weeks.js 和 search.js 与本页面位于同一目录。</div>';
+    } else {
       state.weeks = weeks;
       state.searchIndex = searchIndex;
       [...new Set(weeks.map(w => w.id.slice(0, 4)))].forEach(year => yearFilter.insertAdjacentHTML('beforeend', `<option value="${year}">${year} 年</option>`));
       render();
-    }).catch(() => {
-      const message = location.protocol === 'file:'
-        ? '浏览器无法从本地文件加载周报数据，请通过网站地址或本地服务器打开此页面。'
-        : '周报读取失败，请刷新页面后重试。';
-      content.innerHTML = `<div class="empty">${message}</div>`;
-    });
+    }
   </script>
 </body>
 </html>
