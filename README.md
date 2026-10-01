@@ -44,6 +44,8 @@
 
 `.github/workflows/publish-weekly.yml` 使用每周五 20:30（北京时间；UTC cron 为 `30 12 * * 5`）的计划，并支持在 Actions 页面通过 **Run workflow** 手动执行。工作流包含合并 PDF 下载、PDF 拆分、OCR、网站构建和 GitHub Pages 发布。
 
+如果本周周报尚未发布，采集程序会输出提示并跳过本次处理，工作流正常结束；周报发布后可重新手动运行。
+
 周报 PDF 按 `YYYYMMDD.pdf` 的格式存放在 `raceland_Newsletter/`，拆分逻辑位于 `scripts/split_raceland_pdf.py`。本地处理和 GitHub Actions 均使用该目录；Action 将下载的 PDF 按日期写入该目录，并将 PDF 与网站内容一并提交。
 
 ## 文件结构

@@ -574,7 +574,12 @@ def collect_local_pdf(args):
     start, end, label = week_range(args.week)
     sources = local_pdf_sources(start, end, args.pdf_dir)
     if not sources:
-        raise RuntimeError(f"{label} 在 {args.pdf_dir} 中没有 YYYYMMDD.pdf；2026-07-10 起不再回退 Facebook")
+        print(
+            f"提示：{label} 的周报尚未发布或目录中暂无对应 PDF，跳过本次采集。"
+            "周报发布后可重新运行。",
+            flush=True,
+        )
+        return
     out = OUTPUT_DIR / label
     images_dir = out / "images"
     if images_dir.exists():
