@@ -227,9 +227,22 @@
   </dialog>
   <button class="back-to-search" id="backToSearch" hidden>← 返回搜索结果</button>
 
-  <script src="weeks.js"></script>
-  <script src="search.js"></script>
   <script>
+    const dataCacheKey = Date.now();
+    const loadDataScript = name => new Promise((resolve, reject) => {
+      const script = document.createElement('script');
+      script.src = `${name}?t=${dataCacheKey}`;
+      script.onload = resolve;
+      script.onerror = reject;
+      document.head.appendChild(script);
+    });
+    window.racelandDataReady = Promise.all([
+      loadDataScript('weeks.js'),
+      loadDataScript('search.js')
+    ]);
+  </script>
+  <script>
+    window.racelandDataReady.then(() => {
     const state = { weeks: [], mode: 'weeks', year: 'all', viewerItems: [], viewerSource: 'week', index: 0, scrollZoom: 100, query: '', searchData: null, searchIndex: { records: [], indexed_weeks: 0 }, searchReturn: null };
     const view = { zoom: 1, x: 0, y: 0, dragging: false, startX: 0, startY: 0 };
     const content = document.querySelector('#content');
@@ -648,6 +661,9 @@
       [...new Set(weeks.map(w => w.id.slice(0, 4)))].forEach(year => yearFilter.insertAdjacentHTML('beforeend', `<option value="${year}">${year} 年</option>`));
       render();
     }
+    }).catch(() => {
+      document.querySelector('#content').innerHTML = '<div class="empty">周报数据文件读取失败，请稍后刷新页面。</div>';
+    });
   </script>
 </body>
 </html>

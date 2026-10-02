@@ -28,6 +28,13 @@ def write_json(path: Path, value: object) -> None:
     os.replace(temporary, path)
 
 
+def write_javascript(path: Path, variable: str, value: object) -> None:
+    temporary = path.with_suffix(path.suffix + ".tmp")
+    payload = json.dumps(value, ensure_ascii=False, separators=(",", ":"))
+    temporary.write_text(f"window.{variable} = {payload};\n", encoding="utf-8")
+    os.replace(temporary, path)
+
+
 def build_weeks() -> tuple[list[dict[str, object]], set[tuple[str, str]]]:
     weeks: list[dict[str, object]] = []
     available_images: set[tuple[str, str]] = set()
@@ -81,6 +88,9 @@ def main() -> None:
     search_index, indexed_weeks = build_search_index(available_images)
     write_json(DOCS_DIR / "weeks.json", weeks)
     write_json(DOCS_DIR / "search.json", search_index)
+    # The gallery page loads these JavaScript globals directly.
+    write_javascript(DOCS_DIR / "weeks.js", "RACELAND_WEEKS", weeks)
+    write_javascript(DOCS_DIR / "search.js", "RACELAND_SEARCH_INDEX", search_index)
     print(
         f"网站数据已生成：{len(weeks)} 期、{len(available_images)} 张图片、"
         f"{len(search_index['records'])} 条 OCR 记录（{indexed_weeks} 期已索引）"
