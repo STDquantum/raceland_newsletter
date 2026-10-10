@@ -315,7 +315,7 @@
       counter.textContent = `${results.length}${limited ? '+' : ''} 个结果 · 已索引 ${indexedWeeks} 期`;
       content.innerHTML = results.length ? `
         <div class="result-grid">${results.map(result => `
-          <button class="result-card" onclick="openSearchResult('${result.week}', '${encodeURIComponent(result.image)}')" oncontextmenu="event.preventDefault(); jumpToWeek('${result.week}')" aria-label="打开${weekLabel(result.week)}第${result.page}页">
+          <button class="result-card" data-week="${result.week}" data-search-image="${encodeURIComponent(result.image)}" aria-label="打开${weekLabel(result.week)}第${result.page}页">
             <img src="${result.url}" alt="" loading="lazy">
           </button>`).join('')}</div>`
         : `<div class="empty">已完成 OCR 的内容中没有找到“${escapeHtml(state.query)}”。</div>`;
@@ -330,7 +330,7 @@
         <section class="year-block">
           <div class="year-title"><h2>${year}</h2><span>${items.length} 期</span></div>
           <div class="week-grid">${items.map(week => `
-            <button class="week-card" data-week="${week.id}" onclick="openWeek('${week.id}')" aria-label="查看${weekLabel(week.id)}，${week.images.length}张图片">
+            <button class="week-card" data-week="${week.id}" aria-label="查看${weekLabel(week.id)}，${week.images.length}张图片">
               <img src="${week.images[0].url}" alt="" loading="lazy">
               <span class="week-meta"><span class="week-title"><span class="week-no">W${week.id.slice(6)}</span><span class="week-date">${weekDateRange(week.id)}</span></span><span class="week-count">${week.images.length} 张 →</span></span>
             </button>`).join('')}</div>
@@ -342,7 +342,7 @@
         <article class="continuous-week">
           <div class="continuous-head"><strong>${weekLabel(week.id)}</strong><span>${week.images.length} 张</span></div>
           <div class="page-stack">${week.images.map((image, i) => `
-            <button data-reader-page onclick="openAll('${week.id}', ${i})" aria-label="放大第${i + 1}张">
+            <button data-reader-page data-week="${week.id}" data-image-index="${i}" aria-label="放大第${i + 1}张">
               <img src="${image.url}" alt="${weekLabel(week.id)}第${i + 1}张" loading="lazy">
             </button>`).join('')}</div>
         </article>`).join('');
@@ -354,15 +354,29 @@
         return `<article class="spread-week">
           <div class="continuous-head"><strong>${weekLabel(week.id)}</strong><span>首页单独展示 · ${week.images.length} 张</span></div>
           <div class="spread-cover">
-            <button data-reader-page onclick="openAll('${week.id}', 0)" aria-label="放大首页"><img src="${week.images[0].url}" alt="${weekLabel(week.id)}首页" loading="lazy"></button>
+            <button data-reader-page data-week="${week.id}" data-image-index="0" aria-label="放大首页"><img src="${week.images[0].url}" alt="${weekLabel(week.id)}首页" loading="lazy"></button>
           </div>
           ${pairs.map((pair, pairIndex) => `<div class="spread-row">${pair.map((image, side) => {
             const index = pairIndex * 2 + side + 1;
-            return `<button data-reader-page onclick="openAll('${week.id}', ${index})" aria-label="放大第${index + 1}张"><img src="${image.url}" alt="${weekLabel(week.id)}第${index + 1}张" loading="lazy" onload="this.parentElement.style.aspectRatio=this.naturalWidth+'/'+this.naturalHeight"></button>`;
+            return `<button data-reader-page data-week="${week.id}" data-image-index="${index}" aria-label="放大第${index + 1}张"><img src="${image.url}" alt="${weekLabel(week.id)}第${index + 1}张" loading="lazy" onload="this.parentElement.style.aspectRatio=this.naturalWidth+'/'+this.naturalHeight"></button>`;
           }).join('')}</div>`).join('')}
         </article>`;
       }).join('');
     }
+
+    content.addEventListener('click', event => {
+      const button = event.target.closest('button[data-week]');
+      if (!button || !content.contains(button)) return;
+      if (button.matches('.result-card')) openSearchResult(button.dataset.week, button.dataset.searchImage);
+      else if (button.hasAttribute('data-reader-page')) openAll(button.dataset.week, Number(button.dataset.imageIndex));
+      else if (button.matches('.week-card')) openWeek(button.dataset.week);
+    });
+    content.addEventListener('contextmenu', event => {
+      const button = event.target.closest('.result-card');
+      if (!button || !content.contains(button)) return;
+      event.preventDefault();
+      jumpToWeek(button.dataset.week);
+    });
 
     function openWeek(id) {
       const week = state.weeks.find(w => w.id === id);
