@@ -123,19 +123,20 @@ def find_boundary_from_archive(
     reader: PdfReader,
     archive_dir: Path,
     input_path: Path,
-) -> tuple[int, Path] | None:
+    previous_date: date,
+) -> tuple[int, int, Path] | None:
     """Find the combined PDF's suffix by matching a saved weekly PDF.
 
-    This is the page-count strategy: every candidate's page count is compared
-    with the tail of the downloaded PDF, then page text fingerprints confirm
-    that the candidate really is the previous newsletter rather than merely a
-    PDF with the same number of pages.
+    Match the complete dated archive anywhere in the downloaded PDF, since
+    the source can contain pages from an even older newsletter after it.
     """
 
     input_resolved = input_path.resolve()
     total_pages = len(reader.pages)
-    matches: list[tuple[int, Path]] = []
-    for candidate_path in sorted(archive_dir.glob("*.pdf")):
+    matches: list[tuple[int, int, Path]] = []
+    for candidate_path in [archive_dir / f"{previous_date:%Y%m%d}.pdf"]:
+        if not candidate_path.exists():
+            continue
         if candidate_path.resolve() == input_resolved:
             continue
         try:
@@ -146,18 +147,21 @@ def find_boundary_from_archive(
         if candidate_pages == 0 or candidate_pages >= total_pages:
             continue
 
-        start = total_pages - candidate_pages
-        if all(
-            page_fingerprint(reader.pages[start + offset])
-            == page_fingerprint(candidate.pages[offset])
-            for offset in range(candidate_pages)
-        ):
-            matches.append((start, candidate_path))
+        fingerprints = [page_fingerprint(page) for page in candidate.pages]
+        if any(not fingerprint for fingerprint in fingerprints):
+            continue
+        archive_dates = set().union(*(page_newsletter_dates(text) for text in fingerprints))
+        if previous_date not in archive_dates or any(d < previous_date for d in archive_dates):
+            continue
+        for start in range(total_pages - candidate_pages + 1):
+            if all(page_fingerprint(reader.pages[start + offset]) == fingerprint
+                   for offset, fingerprint in enumerate(fingerprints)):
+                matches.append((start, start + candidate_pages, candidate_path))
 
     if not matches:
         return None
     if len(matches) > 1:
-        paths = ", ".join(str(path) for _, path in matches)
+        paths = ", ".join(f"{path} at page {start + 1}" for start, _, path in matches)
         raise RuntimeError(
             "More than one archived PDF matches the downloaded PDF suffix: "
             f"{paths}"
@@ -226,14 +230,18 @@ def split_pdf(
 
     archive_match = None
     if archive_dir is not None and archive_dir.exists():
-        archive_match = find_boundary_from_archive(reader, archive_dir, input_path)
+        archive_match = find_boundary_from_archive(reader, archive_dir, input_path, previous_date)
 
     if archive_match is not None:
-        previous_start, matched_archive = archive_match
+        previous_start, previous_end, matched_archive = archive_match
+        if previous_start == date_boundary and previous_start > 0 and not page_dates[previous_start - 1]:
+            raise RuntimeError("Archive may be missing an undated first page; refusing an ambiguous split.")
+        if previous_end < len(reader.pages) and not any(d < previous_date for d in page_dates[previous_end]):
+            raise RuntimeError("Pages after the archived newsletter have an ambiguous boundary; refusing to split.")
         if date_boundary is not None and date_boundary != previous_start:
             print(
                 "Date marker starts at zero-based page "
-                f"{date_boundary}, while the archived PDF suffix starts at "
+                f"{date_boundary}, while the archived PDF starts at "
                 f"{previous_start}; using the archived page-count boundary. "
                 "The first page of a newsletter may be a date-free feature image."
             )
@@ -242,6 +250,12 @@ def split_pdf(
         )
     elif date_boundary is not None:
         previous_start = date_boundary
+        if previous_start == 0 or newest_date not in page_dates[previous_start - 1]:
+            raise RuntimeError("Undated pages before the previous date make the boundary ambiguous; provide a complete archived PDF.")
+        previous_end = next((i for i in range(previous_start + 1, len(page_dates))
+                             if any(d < previous_date for d in page_dates[i])), len(page_dates))
+        if previous_end < len(page_dates) and previous_date not in page_dates[previous_end - 1]:
+            raise RuntimeError("Undated pages before the next issue make its boundary ambiguous.")
         boundary_source = "repeated newsletter date markers"
     else:
         raise RuntimeError(
@@ -260,7 +274,7 @@ def split_pdf(
     newest_path = output_dir / f"{newest_date:%Y%m%d}.pdf"
     previous_path = output_dir / f"{previous_date:%Y%m%d}.pdf"
     write_page_range(reader, 0, previous_start, newest_path)
-    write_page_range(reader, previous_start, len(reader.pages), previous_path)
+    write_page_range(reader, previous_start, previous_end, previous_path)
     return newest_path, previous_path, previous_start, boundary_source
 
 
@@ -288,12 +302,11 @@ def main() -> None:
     newest_path, previous_path, split_page, boundary_source = split_pdf(
         args.input, args.output_dir, args.archive_dir
     )
-    total_pages = len(PdfReader(str(args.input)).pages)
     print(f"Boundary: {boundary_source}")
     print(f"Newest newsletter: {newest_path} (pages 1-{split_page})")
     print(
         f"Previous newsletter: {previous_path} "
-        f"(pages {split_page + 1}-{total_pages})"
+        f"(starting at page {split_page + 1}; {len(PdfReader(str(previous_path)).pages)} pages)"
     )
 
     if args.manifest:

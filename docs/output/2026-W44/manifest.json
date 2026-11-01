@@ -2,18 +2,18 @@
   "source": "local_pdf",
   "week": "2026-W44",
   "source_pdfs": [
-    "/home/runner/work/raceland_newsletter/raceland_newsletter/raceland_Newsletter/20261030.pdf"
+    "C:\\Users\\40572\\Downloads\\多彩的菌菇世界\\facebook_newsletter\\raceland_Newsletter\\20261030.pdf"
   ],
   "posts": [
     {
       "id": "pdf-20261030",
       "created": "2026-10-30T00:00:00+01:00",
       "text": "",
-      "url": "/home/runner/work/raceland_newsletter/raceland_newsletter/raceland_Newsletter/20261030.pdf",
+      "url": "C:\\Users\\40572\\Downloads\\多彩的菌菇世界\\facebook_newsletter\\raceland_Newsletter\\20261030.pdf",
       "images": [
         {
           "downloaded": "001_20261030_page-001.jpg",
-          "source_pdf": "/home/runner/work/raceland_newsletter/raceland_newsletter/raceland_Newsletter/20261030.pdf",
+          "source_pdf": "C:\\Users\\40572\\Downloads\\多彩的菌菇世界\\facebook_newsletter\\raceland_Newsletter\\20261030.pdf",
           "source_page": 1,
           "width": 1654,
           "height": 2339,
@@ -21,7 +21,7 @@
         },
         {
           "downloaded": "002_20261030_page-002.jpg",
-          "source_pdf": "/home/runner/work/raceland_newsletter/raceland_newsletter/raceland_Newsletter/20261030.pdf",
+          "source_pdf": "C:\\Users\\40572\\Downloads\\多彩的菌菇世界\\facebook_newsletter\\raceland_Newsletter\\20261030.pdf",
           "source_page": 2,
           "width": 1654,
           "height": 2339,
@@ -29,7 +29,7 @@
         },
         {
           "downloaded": "003_20261030_page-003.jpg",
-          "source_pdf": "/home/runner/work/raceland_newsletter/raceland_newsletter/raceland_Newsletter/20261030.pdf",
+          "source_pdf": "C:\\Users\\40572\\Downloads\\多彩的菌菇世界\\facebook_newsletter\\raceland_Newsletter\\20261030.pdf",
           "source_page": 3,
           "width": 1654,
           "height": 2339,
@@ -37,7 +37,7 @@
         },
         {
           "downloaded": "004_20261030_page-004.jpg",
-          "source_pdf": "/home/runner/work/raceland_newsletter/raceland_newsletter/raceland_Newsletter/20261030.pdf",
+          "source_pdf": "C:\\Users\\40572\\Downloads\\多彩的菌菇世界\\facebook_newsletter\\raceland_Newsletter\\20261030.pdf",
           "source_page": 4,
           "width": 1654,
           "height": 2339,
@@ -45,7 +45,7 @@
         },
         {
           "downloaded": "005_20261030_page-005.jpg",
-          "source_pdf": "/home/runner/work/raceland_newsletter/raceland_newsletter/raceland_Newsletter/20261030.pdf",
+          "source_pdf": "C:\\Users\\40572\\Downloads\\多彩的菌菇世界\\facebook_newsletter\\raceland_Newsletter\\20261030.pdf",
           "source_page": 5,
           "width": 1654,
           "height": 2339,
@@ -53,7 +53,7 @@
         },
         {
           "downloaded": "006_20261030_page-006.jpg",
-          "source_pdf": "/home/runner/work/raceland_newsletter/raceland_newsletter/raceland_Newsletter/20261030.pdf",
+          "source_pdf": "C:\\Users\\40572\\Downloads\\多彩的菌菇世界\\facebook_newsletter\\raceland_Newsletter\\20261030.pdf",
           "source_page": 6,
           "width": 1654,
           "height": 2339,
@@ -61,7 +61,7 @@
         },
         {
           "downloaded": "007_20261030_page-007.jpg",
-          "source_pdf": "/home/runner/work/raceland_newsletter/raceland_newsletter/raceland_Newsletter/20261030.pdf",
+          "source_pdf": "C:\\Users\\40572\\Downloads\\多彩的菌菇世界\\facebook_newsletter\\raceland_Newsletter\\20261030.pdf",
           "source_page": 7,
           "width": 1654,
           "height": 2339,
@@ -69,7 +69,7 @@
         },
         {
           "downloaded": "008_20261030_page-008.jpg",
-          "source_pdf": "/home/runner/work/raceland_newsletter/raceland_newsletter/raceland_Newsletter/20261030.pdf",
+          "source_pdf": "C:\\Users\\40572\\Downloads\\多彩的菌菇世界\\facebook_newsletter\\raceland_Newsletter\\20261030.pdf",
           "source_page": 8,
           "width": 1654,
           "height": 2339,
@@ -77,22 +77,14 @@
         },
         {
           "downloaded": "009_20261030_page-009.jpg",
-          "source_pdf": "/home/runner/work/raceland_newsletter/raceland_newsletter/raceland_Newsletter/20261030.pdf",
+          "source_pdf": "C:\\Users\\40572\\Downloads\\多彩的菌菇世界\\facebook_newsletter\\raceland_Newsletter\\20261030.pdf",
           "source_page": 9,
-          "width": 1654,
-          "height": 2339,
-          "pixels": 3868706
-        },
-        {
-          "downloaded": "010_20261030_page-010.jpg",
-          "source_pdf": "/home/runner/work/raceland_newsletter/raceland_newsletter/raceland_Newsletter/20261030.pdf",
-          "source_page": 10,
           "width": 1654,
           "height": 2339,
           "pixels": 3868706
         }
       ],
-      "image_count": 10,
+      "image_count": 9,
       "issue_week": "2026-W44"
     }
   ],
