@@ -1,0 +1,76 @@
+{
+  "source": "local_pdf",
+  "week": "2026-W46",
+  "source_pdfs": [
+    "/home/runner/work/raceland_newsletter/raceland_newsletter/raceland_Newsletter/20261113.pdf"
+  ],
+  "posts": [
+    {
+      "id": "pdf-20261113",
+      "created": "2026-11-13T00:00:00+01:00",
+      "text": "",
+      "url": "/home/runner/work/raceland_newsletter/raceland_newsletter/raceland_Newsletter/20261113.pdf",
+      "images": [
+        {
+          "downloaded": "001_20261113_page-001.jpg",
+          "source_pdf": "/home/runner/work/raceland_newsletter/raceland_newsletter/raceland_Newsletter/20261113.pdf",
+          "source_page": 1,
+          "width": 1654,
+          "height": 2339,
+          "pixels": 3868706
+        },
+        {
+          "downloaded": "002_20261113_page-002.jpg",
+          "source_pdf": "/home/runner/work/raceland_newsletter/raceland_newsletter/raceland_Newsletter/20261113.pdf",
+          "source_page": 2,
+          "width": 1654,
+          "height": 2339,
+          "pixels": 3868706
+        },
+        {
+          "downloaded": "003_20261113_page-003.jpg",
+          "source_pdf": "/home/runner/work/raceland_newsletter/raceland_newsletter/raceland_Newsletter/20261113.pdf",
+          "source_page": 3,
+          "width": 1654,
+          "height": 2339,
+          "pixels": 3868706
+        },
+        {
+          "downloaded": "004_20261113_page-004.jpg",
+          "source_pdf": "/home/runner/work/raceland_newsletter/raceland_newsletter/raceland_Newsletter/20261113.pdf",
+          "source_page": 4,
+          "width": 1654,
+          "height": 2339,
+          "pixels": 3868706
+        },
+        {
+          "downloaded": "005_20261113_page-005.jpg",
+          "source_pdf": "/home/runner/work/raceland_newsletter/raceland_newsletter/raceland_Newsletter/20261113.pdf",
+          "source_page": 5,
+          "width": 1654,
+          "height": 2339,
+          "pixels": 3868706
+        },
+        {
+          "downloaded": "006_20261113_page-006.jpg",
+          "source_pdf": "/home/runner/work/raceland_newsletter/raceland_newsletter/raceland_Newsletter/20261113.pdf",
+          "source_page": 6,
+          "width": 1654,
+          "height": 2339,
+          "pixels": 3868706
+        },
+        {
+          "downloaded": "007_20261113_page-007.jpg",
+          "source_pdf": "/home/runner/work/raceland_newsletter/raceland_newsletter/raceland_Newsletter/20261113.pdf",
+          "source_page": 7,
+          "width": 1654,
+          "height": 2339,
+          "pixels": 3868706
+        }
+      ],
+      "image_count": 7,
+      "issue_week": "2026-W46"
+    }
+  ],
+  "graphql_requests": []
+}
